@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk mi, Sorun mu, Varsayım mı?</title>
+<style>
+:root{
+  --teal:#1F6F6F; --teal-d:#164f4f; --teal-l:#e3f2f2; --mint:#f4fbfb; --line:#cfe5e5;
+  --ink:#1d2b2b; --muted:#5b6f6f; --amber:#c27c0e; --amber-l:#fff5e3;
+  --ok:#1e7a4c; --ok-l:#e6f5ec; --bad:#b4442f; --bad-l:#fbecea; --card:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",Calibri,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--mint);line-height:1.5;font-size:16px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:700}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.lang button{border:0;background:transparent;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--teal);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(31,111,111,.06)}
+h1{font-size:26px;line-height:1.25;margin:0 0 8px;color:var(--teal-d)}
+h2{font-size:20px;margin:0 0 12px;color:var(--teal-d)}
+.sub{color:var(--muted);margin:0 0 16px}
+.hello{font-size:18px;font-weight:600;color:var(--amber);margin:0 0 4px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 20px}
+.chip{background:var(--teal-l);color:var(--teal-d);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;background:var(--teal);color:#fff;min-height:44px}
+.btn:hover{background:var(--teal-d)}
+.btn.ghost{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.progress{height:6px;background:var(--teal-l);border-radius:999px;overflow:hidden;margin:6px 0 18px}
+.progress span{display:block;height:100%;background:var(--teal);transition:width .3s}
+.qhead{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);gap:8px;flex-wrap:wrap}
+.section{font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.prompt{font-size:17px;margin:4px 0 6px;font-weight:600}
+.stmt{background:var(--mint);border-left:4px solid var(--teal);padding:14px 16px;border-radius:8px;font-size:18px;margin:12px 0 18px}
+.opts{display:grid;gap:10px}
+.opts.grid2{grid-template-columns:1fr 1fr}
+.opt{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font:inherit;cursor:pointer;color:var(--ink);min-height:48px;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--teal);background:var(--mint)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-l)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-l)}
+.opt .tag{display:inline-block;font-weight:700;margin-right:8px;color:var(--teal)}
+.fb{margin-top:16px;border-radius:12px;padding:14px 16px}
+.fb.ok{background:var(--ok-l);border:1px solid #b9e0c9}
+.fb.no{background:var(--bad-l);border:1px solid #efc6be}
+.fb b{display:block;margin-bottom:4px}
+.nav{display:flex;justify-content:flex-end;margin-top:18px}
+.score{font-size:48px;font-weight:800;color:var(--teal);line-height:1;margin:6px 0}
+.msg{background:var(--amber-l);border-radius:12px;padding:12px 16px;margin:14px 0}
+.review{margin-top:18px;display:grid;gap:8px}
+.ritem{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font-size:14px}
+.ritem .ico{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.ico.y{background:var(--ok)} .ico.n{background:var(--bad)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+@media (max-width:560px){.card{padding:18px}.opts.grid2{grid-template-columns:1fr}h1{font-size:22px}.stmt{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand" id="brand"></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-l="tr">TR</button><button type="button" data-l="en">EN</button>
+    </div>
+  </div>
+  <main class="card" id="app" aria-live="polite"></main>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+const DATA = {"id": "RM-A1", "brand": {"tr": "GBMC · Risk Yönetimi", "en": "GBMC · Risk Management"}, "footer": {"tr": "Risk Yönetimi: Tanımlamadan Aksiyona · Assessment 1", "en": "Risk Management: From Identification to Action · Assessment 1"}, "title": {"tr": "Risk mi, Sorun mu, Varsayım mı?", "en": "Risk, Issue or Assumption?"}, "subtitle": {"tr": "Modül 2 sonrası kısa değerlendirme", "en": "Short assessment after Module 2"}, "minutes": 10, "intro": {"tr": ["İlk bölümde on kısa ifade göreceksiniz. Her biri için risk mi, sorun mu, varsayım mı, endişe mi olduğuna karar verin.", "İkinci bölümde üç soruda en iyi yazılmış risk cümlesini seçeceksiniz. Hatırlayın: Neden – risk – etki.", "Her cevaptan sonra kısa bir açıklama göreceksiniz."], "en": ["In the first part you will see ten short statements. Decide whether each one is a risk, an issue, an assumption or a concern.", "In the second part you will pick the best-written risk statement in three questions. Remember: cause – risk – effect.", "You will see a short explanation after each answer."]}, "sections": [{"id": "A", "label": {"tr": "Bölüm 1 · Ayırt edin", "en": "Part 1 · Tell them apart"}, "prompt": {"tr": "Bu ifade hangisi?", "en": "What is this statement?"}, "options": [{"tr": "Risk", "en": "Risk"}, {"tr": "Sorun", "en": "Issue"}, {"tr": "Varsayım", "en": "Assumption"}, {"tr": "Endişe", "en": "Concern"}]}, {"id": "B", "label": {"tr": "Bölüm 2 · İyi yazılmış risk", "en": "Part 2 · A well-written risk"}}], "items": [{"section": "A", "correct": 1, "stmt": {"tr": "“Yazılım firması teslim tarihini iki kez erteledi.”", "en": "“The software vendor has postponed the delivery date twice.”"}, "explain": {"tr": "Bu olmuş bir şey, yani sorun. Ama dikkat: Bu sorun, firmanın bir daha erteleyebileceği riskinin de güçlü bir işareti.", "en": "This has already happened, so it is an issue. But note: it is also a strong signal of the risk that the vendor may postpone again."}}, {"section": "A", "correct": 0, "stmt": {"tr": "“Kilit uzmanımız proje ortasında başka bir projeye kaydırılabilir.”", "en": "“Our key expert may be moved to another project halfway through.”"}, "explain": {"tr": "Henüz olmadı, olabilir ve olursa hedefimizi etkiler. Bu bir risk.", "en": "It has not happened yet, it may happen, and it would affect our goal. This is a risk."}}, {"section": "A", "correct": 2, "stmt": {"tr": "“Müşteri, onay toplantısına zamanında katılacaktır.”", "en": "“The client will attend the approval meeting on time.”"}, "explain": {"tr": "Doğru kabul ettiğimiz ama kontrol etmediğimiz bir şey. Varsayım. Kontrol edilmeyen her varsayım gizli bir risktir.", "en": "Something we accept as true but have not checked. An assumption. Every unchecked assumption is a hidden risk."}}, {"section": "A", "correct": 3, "stmt": {"tr": "“Bu kadar sıkışık bir takvim beni tedirgin ediyor.”", "en": "“Such a tight schedule makes me uneasy.”"}, "explain": {"tr": "Bu bir duygu, yani endişe. Önemli bir sinyal. “Seni tam olarak ne tedirgin ediyor?” diye sorarsanız altından gerçek riskler çıkabilir.", "en": "This is a feeling, a concern. It is an important signal. If you ask “What exactly worries you?”, real risks may come out."}}, {"section": "A", "correct": 0, "stmt": {"tr": "“Döviz kuru düşerse, ithal ekipman bütçenin altında kalabilir.”", "en": "“If the exchange rate falls, the imported equipment may come in under budget.”"}, "explain": {"tr": "Bu da bir risk, ama olumlu yönde: bir fırsat. Risk sadece tehdit değildir.", "en": "This is also a risk, but a positive one: an opportunity. Risk is not only about threats."}}, {"section": "A", "correct": 1, "stmt": {"tr": "“Test ortamı dün çöktü, ekip çalışamıyor.”", "en": "“The test environment crashed yesterday and the team cannot work.”"}, "explain": {"tr": "Olmuş ve şu an etkisini gösteriyor. Sorun. Sorunlar hemen çözülür, riskler önceden yönetilir.", "en": "It has happened and is having an effect right now. An issue. Issues are solved now; risks are managed in advance."}}, {"section": "A", "correct": 2, "stmt": {"tr": "“Tedarikçinin stoğu nasılsa yeterlidir.”", "en": "“The supplier surely has enough stock.”"}, "explain": {"tr": "“Nasılsa” kelimesi bir varsayımın işaretidir. Bir telefonla kontrol edilebilir.", "en": "“Surely” is the sign of an assumption. One phone call could check it."}}, {"section": "A", "correct": 0, "stmt": {"tr": "“Yeni mevzuat yürürlüğe girerse raporlama formatımızı değiştirmemiz gerekebilir.”", "en": "“If the new regulation comes into force, we may need to change our reporting format.”"}, "explain": {"tr": "Belirsiz, gelecekte ve hedefi etkileyebilir. Dış kaynaklı bir risk.", "en": "Uncertain, in the future, and it may affect our goal. An external risk."}}, {"section": "A", "correct": 3, "stmt": {"tr": "“Yönetimin bu projeye gerçekten inandığından emin değilim.”", "en": "“I am not sure management really believes in this project.”"}, "explain": {"tr": "Bir his, yani endişe. Altında “sponsor desteği azalabilir” gibi bir risk olabilir. Konuşup netleştirmek gerekir.", "en": "A feeling, a concern. There may be a risk underneath, such as “sponsor support may weaken”. It needs to be talked through."}}, {"section": "A", "correct": 0, "stmt": {"tr": "“Kış aylarında saha çalışmaları hava koşulları nedeniyle durabilir.”", "en": "“Field work may stop in the winter months because of the weather.”"}, "explain": {"tr": "Henüz olmadı, olabilir ve takvimi etkiler. Risk.", "en": "It has not happened, it may happen, and it affects the schedule. A risk."}}, {"section": "B", "correct": 2, "short": {"tr": "En iyi yazılmış tedarikçi riski", "en": "Best-written supplier risk"}, "prompt": {"tr": "Hangisi en iyi yazılmış risk cümlesi?", "en": "Which is the best-written risk statement?"}, "options": [{"tr": "Tedarikçi riski.", "en": "Supplier risk."}, {"tr": "Tedarikçi geç kaldı, kurulum gecikti.", "en": "The supplier was late and the installation was delayed."}, {"tr": "Ana tedarikçi tek fabrikada üretim yaptığı için, fabrikada bir arıza olursa teslimat 3 haftaya kadar gecikebilir. Bu da açılış tarihini kaydırır.", "en": "Because the main supplier produces in a single plant, a breakdown there could delay delivery by up to 3 weeks. This would push back the opening date."}, {"tr": "Tedarikçiyle sorunlar yaşanabilir ve bu kötü olur.", "en": "There could be problems with the supplier, and that would be bad."}], "explain": {"tr": "C’de neden (tek fabrika), risk (3 haftaya kadar gecikme) ve etki (açılış tarihi) açık. A çok genel, B olmuş bir sorun, D’de neden ve etki belirsiz.", "en": "C has a clear cause (single plant), risk (up to 3 weeks’ delay) and effect (opening date). A is too general, B is an issue that already happened, D has a vague cause and effect."}}, {"section": "B", "correct": 1, "short": {"tr": "En iyi yazılmış personel riski", "en": "Best-written people risk"}, "prompt": {"tr": "Hangisi en iyi yazılmış risk cümlesi?", "en": "Which is the best-written risk statement?"}, "options": [{"tr": "Ali ayrılabilir.", "en": "Ali might leave."}, {"tr": "Ekipte veri tabanını bilen tek kişi olduğu için, bu kişi ayrılırsa veya uzun izne çıkarsa veri taşıma çalışması durabilir. Bu da canlıya geçişi geciktirir.", "en": "Because only one person in the team knows the database, if that person leaves or takes long leave the data migration could stop. This would delay go-live."}, {"tr": "Ekip moralinin düşük olması projeyi olumsuz etkiler.", "en": "Low team morale has a negative effect on the project."}, {"tr": "Ali ayrıldı ve veri tabanını bilen kimse kalmadı.", "en": "Ali has left and nobody else knows the database."}], "explain": {"tr": "B neden, risk ve etkiyi birlikte veriyor. A’da neden ve etki yok. C bir durum tespiti, belirsiz bir olay tarif etmiyor. D artık bir sorun.", "en": "B gives the cause, the risk and the effect together. A has no cause or effect. C is an observation, not an uncertain event. D is already an issue."}}, {"section": "B", "correct": 3, "short": {"tr": "En iyi yazılmış fırsat", "en": "Best-written opportunity"}, "prompt": {"tr": "Hangisi en iyi yazılmış fırsat cümlesi?", "en": "Which is the best-written opportunity statement?"}, "options": [{"tr": "Fırsatlar değerlendirilmeli.", "en": "Opportunities should be taken."}, {"tr": "Teşviki aldık, bütçe rahatladı.", "en": "We received the incentive and the budget is more comfortable."}, {"tr": "Belki biraz para artar.", "en": "Maybe some money will be left over."}, {"tr": "Yeni teşvik programı yıl sonundan önce açılırsa, makine yatırımımızın %20’sini hibeyle karşılayabiliriz. Bu da bütçede yer açar.", "en": "If the new incentive programme opens before year-end, a grant could cover 20% of our machinery investment. This would free up budget."}], "explain": {"tr": "Fırsatlar da aynı yapıyla yazılır: koşul, olası olay ve olumlu etki. D bunu yapıyor. B olmuş bir şey, A ve C ise çok belirsiz.", "en": "Opportunities use the same structure: condition, possible event and positive effect. D does this. B has already happened; A and C are too vague."}}], "bands": [{"min": 0.85, "tr": "Çok iyi. Kavramları net ayırıyorsunuz. Vaka çalışmasında bu ayrım size çok yardım edecek.", "en": "Very good. You clearly tell the concepts apart. This will help you a lot in the case study."}, {"min": 0.6, "tr": "İyi bir başlangıç. Kaçırdığınız sorulara aşağıda bir kez daha göz atın.", "en": "A good start. Take another look at the questions you missed below."}, {"min": 0, "tr": "Bu ayrım zaman zaman herkesi zorlar. Modül 1’in “Risk, Sorun, Varsayım ve Endişe” bölümüne dönüp tekrar denemenizi öneririm.", "en": "This distinction can trip anyone up. I suggest revisiting the “Risk, Issue, Assumption and Concern” section of Module 1 and trying again."}], "takeawayTitle": {"tr": "Akılda kalsın", "en": "Remember"}, "takeaway": {"tr": "Olmuşsa sorun, olabilirse risk. Kontrol etmediğimiz her varsayım gizli bir risktir. Ve iyi bir risk cümlesinin üç parçası vardır: neden, risk, etki.", "en": "If it has happened, it is an issue; if it may happen, it is a risk. Every unchecked assumption is a hidden risk. And a good risk statement has three parts: cause, risk, effect."}};
+const UI = {
+  tr:{start:"Başla",next:"Sonraki",finish:"Sonucu gör",q:"Soru",of:"/",correct:"Doğru.",wrong:"Tam değil.",answer:"Doğru cevap:",
+      result:"Sonucunuz",retry:"Tekrar dene",review:"Cevaplarınızın özeti",questions:"soru",minutes:"dakika",
+      instant:"Anında geri bildirim",yours:"Sizin cevabınız:"},
+  en:{start:"Start",next:"Next",finish:"See result",q:"Question",of:"/",correct:"Correct.",wrong:"Not quite.",answer:"Correct answer:",
+      result:"Your result",retry:"Try again",review:"Summary of your answers",questions:"questions",minutes:"minutes",
+      instant:"Instant feedback",yours:"Your answer:"}
+};
+
+/* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
+const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
+const params = new URLSearchParams(location.search);
+let lang = (params.get("lang")||"tr").toLowerCase()==="en" ? "en" : "tr";
+let state = {screen:"intro", i:0, answers:[]};
+const $app = document.getElementById("app");
+const t = (o)=> (o && typeof o==="object" && ("tr" in o)) ? o[lang] : o;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function setLang(l){ lang=l; document.documentElement.lang=l;
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.l===l));
+  document.getElementById("brand").textContent = t(DATA.brand);
+  document.getElementById("foot").textContent = t(DATA.footer);
+  document.title = t(DATA.title); render(); }
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.l)));
+
+function render(){
+  const u = UI[lang];
+  if(state.screen==="intro"){
+    $app.innerHTML = `${firstName?`<p class="hello">${lang==="tr"?"Merhaba":"Hello"} ${esc(firstName)},</p>`:""}<h1>${esc(t(DATA.title))}</h1><p class="sub">${esc(t(DATA.subtitle))}</p>
+      ${t(DATA.intro).map(p=>`<p>${esc(p)}</p>`).join("")}
+      <div class="meta"><span class="chip">${DATA.items.length} ${u.questions}</span><span class="chip">~${DATA.minutes} ${u.minutes}</span><span class="chip">${u.instant}</span></div>
+      <button class="btn" id="go">${u.start}</button>`;
+    document.getElementById("go").onclick=()=>{state={screen:"q",i:0,answers:[]};render();};
+    return;
+  }
+  if(state.screen==="q"){
+    const it = DATA.items[state.i], ans = state.answers[state.i];
+    const pct = Math.round((state.i)/DATA.items.length*100);
+    const sec = DATA.sections.find(s=>s.id===it.section);
+    const opts = it.options || DATA.sections.find(s=>s.id===it.section).options;
+    const letters="ABCDEFGH";
+    $app.innerHTML = `
+      <div class="qhead"><span class="section">${esc(t(sec.label))}</span><span>${u.q} ${state.i+1} ${u.of} ${DATA.items.length}</span></div>
+      <div class="progress"><span style="width:${pct}%"></span></div>
+      <div class="prompt">${esc(t(it.prompt || sec.prompt))}</div>
+      ${it.stmt ? `<div class="stmt">${esc(t(it.stmt))}</div>` : ""}
+      <div class="opts ${opts.length===4 && !it.options ? "grid2":""}" role="group">
+        ${opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="tag">${letters[k]}</span>${esc(t(o))}</button>`).join("")}
+      </div>
+      <div id="fb"></div>
+      <div class="nav"><button class="btn" id="nx" ${ans===undefined?"disabled":""}>${state.i===DATA.items.length-1?u.finish:u.next}</button></div>`;
+    const btns=[...$app.querySelectorAll(".opt")];
+    const showFb=(k)=>{
+      btns.forEach(b=>{b.disabled=true; const bk=+b.dataset.k;
+        if(bk===it.correct) b.classList.add("correct"); else if(bk===k) b.classList.add("wrong");});
+      const ok = k===it.correct;
+      document.getElementById("fb").innerHTML = `<div class="fb ${ok?"ok":"no"}"><b>${ok?u.correct:u.wrong}${ok?"":" "+u.answer+" "+esc(t(opts[it.correct]))}</b>${esc(t(it.explain))}</div>`;
+      document.getElementById("nx").disabled=false;
+    };
+    btns.forEach(b=>b.onclick=()=>{ if(state.answers[state.i]!==undefined) return; const k=+b.dataset.k; state.answers[state.i]=k; showFb(k); document.getElementById("nx").focus(); });
+    if(ans!==undefined) showFb(ans);
+    document.getElementById("nx").onclick=()=>{ if(state.i<DATA.items.length-1){state.i++;} else {state.screen="result"; notify();} render(); window.scrollTo({top:0,behavior:"smooth"}); };
+    return;
+  }
+  if(state.screen==="result"){
+    const n=DATA.items.length, score=state.answers.filter((a,k)=>a===DATA.items[k].correct).length;
+    const band = DATA.bands.find(b=>score/n>=b.min);
+    $app.innerHTML = `<h2>${firstName?esc(firstName)+", "+u.result.toLowerCase():u.result}</h2><div class="score">${score} / ${n}</div>
+      <div class="msg">${esc(t(band))}</div>
+      <p><b>${esc(t(DATA.takeawayTitle))}</b></p><p>${esc(t(DATA.takeaway))}</p>
+      <h2 style="margin-top:22px">${u.review}</h2>
+      <div class="review">${DATA.items.map((it,k)=>{const ok=state.answers[k]===it.correct; const opts=it.options||DATA.sections.find(s=>s.id===it.section).options;
+        return `<div class="ritem"><span class="ico ${ok?"y":"n"}">${ok?"✓":"✗"}</span><div>${esc(t(it.short||it.stmt||it.prompt))}<br><span style="color:var(--muted)">${ok?"":u.yours+" "+esc(t(opts[state.answers[k]]))+" · "}${u.answer} ${esc(t(opts[it.correct]))}</span></div></div>`;}).join("")}</div>
+      <div class="row"><button class="btn ghost" id="again">${u.retry}</button></div>`;
+    document.getElementById("again").onclick=()=>{state={screen:"q",i:0,answers:[]};render();};
+  }
+}
+function notify(){
+  const n=DATA.items.length, score=state.answers.filter((a,k)=>a===DATA.items[k].correct).length;
+  try{ window.parent && window.parent!==window && window.parent.postMessage({type:"gbmc-activity-complete",id:DATA.id,score,total:n},"*"); }catch(e){}
+}
+setLang(lang);
+</script>
+</body>
+</html>

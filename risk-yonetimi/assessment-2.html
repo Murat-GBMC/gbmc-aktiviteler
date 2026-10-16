@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doğru Yanıtı Seç</title>
+<style>
+:root{
+  --teal:#1F6F6F; --teal-d:#164f4f; --teal-l:#e3f2f2; --mint:#f4fbfb; --line:#cfe5e5;
+  --ink:#1d2b2b; --muted:#5b6f6f; --amber:#c27c0e; --amber-l:#fff5e3;
+  --ok:#1e7a4c; --ok-l:#e6f5ec; --bad:#b4442f; --bad-l:#fbecea; --card:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",Calibri,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--mint);line-height:1.5;font-size:16px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:700}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.lang button{border:0;background:transparent;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--teal);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(31,111,111,.06)}
+h1{font-size:26px;line-height:1.25;margin:0 0 8px;color:var(--teal-d)}
+h2{font-size:20px;margin:0 0 12px;color:var(--teal-d)}
+.sub{color:var(--muted);margin:0 0 16px}
+.hello{font-size:18px;font-weight:600;color:var(--amber);margin:0 0 4px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 20px}
+.chip{background:var(--teal-l);color:var(--teal-d);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;background:var(--teal);color:#fff;min-height:44px}
+.btn:hover{background:var(--teal-d)}
+.btn.ghost{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.progress{height:6px;background:var(--teal-l);border-radius:999px;overflow:hidden;margin:6px 0 18px}
+.progress span{display:block;height:100%;background:var(--teal);transition:width .3s}
+.qhead{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);gap:8px;flex-wrap:wrap}
+.section{font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.prompt{font-size:17px;margin:4px 0 6px;font-weight:600}
+.stmt{background:var(--mint);border-left:4px solid var(--teal);padding:14px 16px;border-radius:8px;font-size:18px;margin:12px 0 18px}
+.opts{display:grid;gap:10px}
+.opts.grid2{grid-template-columns:1fr 1fr}
+.opt{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font:inherit;cursor:pointer;color:var(--ink);min-height:48px;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--teal);background:var(--mint)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-l)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-l)}
+.opt .tag{display:inline-block;font-weight:700;margin-right:8px;color:var(--teal)}
+.fb{margin-top:16px;border-radius:12px;padding:14px 16px}
+.fb.ok{background:var(--ok-l);border:1px solid #b9e0c9}
+.fb.no{background:var(--bad-l);border:1px solid #efc6be}
+.fb b{display:block;margin-bottom:4px}
+.nav{display:flex;justify-content:flex-end;margin-top:18px}
+.score{font-size:48px;font-weight:800;color:var(--teal);line-height:1;margin:6px 0}
+.msg{background:var(--amber-l);border-radius:12px;padding:12px 16px;margin:14px 0}
+.review{margin-top:18px;display:grid;gap:8px}
+.ritem{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font-size:14px}
+.ritem .ico{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.ico.y{background:var(--ok)} .ico.n{background:var(--bad)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+@media (max-width:560px){.card{padding:18px}.opts.grid2{grid-template-columns:1fr}h1{font-size:22px}.stmt{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand" id="brand"></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-l="tr">TR</button><button type="button" data-l="en">EN</button>
+    </div>
+  </div>
+  <main class="card" id="app" aria-live="polite"></main>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+const DATA = {"id": "RM-A2", "brand": {"tr": "GBMC · Risk Yönetimi", "en": "GBMC · Risk Management"}, "footer": {"tr": "Risk Yönetimi: Tanımlamadan Aksiyona · Assessment 2", "en": "Risk Management: From Identification to Action · Assessment 2"}, "title": {"tr": "Doğru Yanıtı Seç", "en": "Choose the Right Response"}, "subtitle": {"tr": "Modül 4 sonrası kısa değerlendirme", "en": "Short assessment after Module 4"}, "minutes": 10, "intro": {"tr": ["On kısa durum göreceksiniz. Her biri için en uygun risk yanıt stratejisini seçin.", "Tehditler için: Kaçın, aktar, azalt, kabul et (aktif ya da pasif) ve eskale et. Fırsatlar için: Garantile, paylaş, büyüt.", "Her cevaptan sonra kısa bir açıklama göreceksiniz."], "en": ["You will see ten short situations. For each one, choose the most suitable risk response strategy.", "For threats: avoid, transfer, mitigate, accept (active or passive) and escalate. For opportunities: exploit, share, enhance.", "You will see a short explanation after each answer."]}, "sections": [{"id": "A", "label": {"tr": "Durum", "en": "Situation"}}], "items": [{"section": "A", "stmt": {"tr": "Kritik bir müşteri projesinde, ekibin hiç deneyimi olmayan yeni bir teknoloji kullanmayı planlıyorsunuz. Müşteri bu teknolojiyi şart koşmuyor. Ekibin iyi bildiği, test edilmiş bir alternatif var.", "en": "On a critical client project you plan to use a new technology the team has never used. The client does not require it. There is a tested alternative the team knows well."}, "options": [{"tr": "Azalt", "en": "Mitigate"}, {"tr": "Kaçın", "en": "Avoid"}, {"tr": "Aktar", "en": "Transfer"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}], "correct": 1, "explain": {"tr": "Riskin kaynağını ortadan kaldırmak mümkün ve bedeli düşük: Bilinen teknolojiyle devam etmek. Bu kaçınmadır.", "en": "You can remove the source of the risk at a low price by staying with the known technology. That is avoidance."}, "short": {"tr": "Yeni teknoloji, alternatif var", "en": "New technology, alternative exists"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Açık havada büyük bir müşteri etkinliği düzenliyorsunuz. Tarih ve yer değiştirilemez. Yağmur yağarsa etkinlik iptal olur ve bilet iadeleri çok pahalıya mal olur. Bir sigorta şirketi uygun fiyatlı bir “hava koşulu iptal sigortası” sunuyor.", "en": "You are organising a large outdoor client event. The date and venue cannot change. If it rains the event is cancelled and ticket refunds are very costly. An insurer offers affordable weather cancellation cover."}, "options": [{"tr": "Kaçın", "en": "Avoid"}, {"tr": "Aktar", "en": "Transfer"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}, {"tr": "Büyüt", "en": "Enhance"}], "correct": 1, "explain": {"tr": "Yağmuru engelleyemezsiniz, etkinliği de iptal edemezsiniz. Ama mali etkiyi sigortayla aktarabilirsiniz. Unutmayın: Sigorta parayı karşılar, müşterinin hayal kırıklığını karşılamaz.", "en": "You cannot stop the rain or cancel the event, but you can transfer the financial impact through insurance. Remember: insurance covers the money, not the clients’ disappointment."}, "short": {"tr": "Açık hava etkinliği, sigorta", "en": "Outdoor event, insurance"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Eski sistemden yeni sisteme veri taşıyacaksınız. Bir kısım verinin bozulma riski var. Taşımadan önce tam yedek almak ve önce küçük bir pilotla başlamak mümkün.", "en": "You are migrating data from an old system to a new one. Some data may get corrupted. You can take a full backup first and start with a small pilot."}, "options": [{"tr": "Azalt", "en": "Mitigate"}, {"tr": "Eskale et", "en": "Escalate"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}, {"tr": "Paylaş", "en": "Share"}], "correct": 0, "explain": {"tr": "Yedek almak etkiyi, pilot yapmak olasılığı düşürür. Bu azaltmadır ve iş hayatında en sık kullanılan stratejidir.", "en": "The backup reduces the impact and the pilot reduces the probability. This is mitigation, the most common strategy in practice."}, "short": {"tr": "Veri taşıma, yedek ve pilot", "en": "Data migration, backup and pilot"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Ofis taşınmasında birkaç eski sandalyenin hasar görme ihtimali var. Sandalyelerin değeri düşük. Sigortalamak veya özel ambalaj yaptırmak, olası hasardan daha pahalı.", "en": "During an office move a few old chairs may get damaged. They are worth little. Insuring them or special packing would cost more than the possible damage."}, "options": [{"tr": "Aktar", "en": "Transfer"}, {"tr": "Azalt", "en": "Mitigate"}, {"tr": "Kaçın", "en": "Avoid"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}], "correct": 3, "explain": {"tr": "Yanıtın maliyeti riskin kendisinden pahalıysa, bilinçli olarak kabul etmek doğru karardır. Önemli olan bunun bir karar olması, unutkanlık olmaması.", "en": "If the response costs more than the risk itself, consciously accepting it is the right call. What matters is that it is a decision, not forgetfulness."}, "short": {"tr": "Değeri düşük sandalyeler", "en": "Low-value chairs"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Tek kaynaklı kritik bir hammadde tedarikçiniz finansal sıkıntıda olabilir. Şimdiden ikinci bir tedarikçiyle çalışmaya başlamak çok pahalı. Ama gerçekleşirse üretim durur. Alternatif bir tedarikçiyle önceden görüşüp hazır bir sipariş taslağı bekletebilirsiniz.", "en": "Your single-source supplier of a critical raw material may be in financial trouble. Switching to a second supplier now is very expensive, but if it happens production stops. You can talk to an alternative supplier in advance and keep a draft order ready."}, "options": [{"tr": "Kaçın", "en": "Avoid"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}, {"tr": "Kabul et (aktif: B planı hazırla)", "en": "Accept (active: prepare a Plan B)"}, {"tr": "Garantile", "en": "Exploit"}], "correct": 2, "explain": {"tr": "Önlem almak çok pahalı ama etki büyük. Bu durumda aktif kabul: Şimdi para harcamıyorsunuz ama gerçekleşirse ne yapacağınız ve hazırlığı belli. Bu bir B planıdır.", "en": "Prevention is too expensive but the impact is large. So: active acceptance. You do not spend now, but you know exactly what you will do if it happens, and you are prepared. That is a Plan B."}, "short": {"tr": "Tek kaynaklı tedarikçi", "en": "Single-source supplier"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Projeniz, şirketin başka bir projesiyle aynı uzman ekibe aynı dönemde ihtiyaç duyuyor. İki proje birden bu ekibi kullanamaz. Hangi projenin öncelikli olacağına karar vermek sizin yetkinizde değil.", "en": "Your project needs the same expert team as another company project in the same period. Both cannot use the team at once. Deciding which project has priority is outside your authority."}, "options": [{"tr": "Azalt", "en": "Mitigate"}, {"tr": "Eskale et", "en": "Escalate"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}, {"tr": "Aktar", "en": "Transfer"}], "correct": 1, "explain": {"tr": "Karar sizin yetkinizin dışındaysa, riski yetkisi olan kişiye taşımalısınız. Erken eskalasyon zayıflık değil, profesyonelliktir.", "en": "When the decision is outside your authority, take the risk to someone who has it. Early escalation is professionalism, not weakness."}, "short": {"tr": "Paylaşılan uzman ekip", "en": "Shared expert team"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Ekipman tedarikçiniz, siparişi bu ay içinde verirseniz %12 indirim yapacağını söylüyor. Bütçeniz hazır ve ekipman ihtiyacı kesin.", "en": "Your equipment supplier offers a 12% discount if you place the order this month. Your budget is ready and the need is certain."}, "options": [{"tr": "Garantile", "en": "Exploit"}, {"tr": "Paylaş", "en": "Share"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}, {"tr": "Büyüt", "en": "Enhance"}], "correct": 0, "explain": {"tr": "Fırsatı kesinleştirmek mümkün: Siparişi hemen vermek. Bu, fırsatı garantilemektir.", "en": "You can make the opportunity certain by ordering now. That is exploiting the opportunity."}, "short": {"tr": "Erken sipariş indirimi", "en": "Early-order discount"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Büyük bir kamu ihalesi açıldı. Kazanırsanız çok kârlı olacak ama tek başınıza kapasiteniz yetmiyor. Güvendiğiniz bir firmayla ortak teklif verebilirsiniz.", "en": "A large public tender has opened. Winning would be very profitable, but your capacity alone is not enough. You could bid jointly with a firm you trust."}, "options": [{"tr": "Garantile", "en": "Exploit"}, {"tr": "Paylaş", "en": "Share"}, {"tr": "Kaçın", "en": "Avoid"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}], "correct": 1, "explain": {"tr": "Fırsatı tek başınıza yakalayamıyorsanız, yakalayabilecek biriyle paylaşırsınız. Kazancın bir kısmından vazgeçer ama fırsatı kaçırmazsınız.", "en": "If you cannot seize an opportunity alone, you share it with someone who can. You give up part of the gain but you do not miss it."}, "short": {"tr": "Ortak ihale teklifi", "en": "Joint tender bid"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "stmt": {"tr": "Proje sözleşme tarihinden önce biterse müşteri bir prim ödeyecek. Şu an erken bitirme ihtimali düşük. Ekibe iki kişi eklemek bu ihtimali belirgin şekilde artırıyor ve prim, ek maliyetten fazla.", "en": "The client will pay a bonus if the project finishes before the contract date. Right now early completion is unlikely. Adding two people to the team clearly raises the chance, and the bonus exceeds the extra cost."}, "options": [{"tr": "Büyüt", "en": "Enhance"}, {"tr": "Garantile", "en": "Exploit"}, {"tr": "Azalt", "en": "Mitigate"}, {"tr": "Kabul et (pasif: olursa bakarız)", "en": "Accept (passive: deal with it if it happens)"}], "correct": 0, "explain": {"tr": "Fırsatın olasılığını artırıyorsunuz. Bu, fırsatı büyütmektir. Garantilemek değil, çünkü erken bitiş hâlâ kesin değil.", "en": "You are raising the probability of the opportunity. That is enhancing. It is not exploiting, because early completion is still not certain."}, "short": {"tr": "Erken bitirme primi", "en": "Early-completion bonus"}, "prompt": {"tr": "Bu durumda en uygun yanıt stratejisi hangisi?", "en": "Which response strategy fits this situation best?"}}, {"section": "A", "correct": 2, "prompt": {"tr": "Hangisi doğru?", "en": "Which is correct?"}, "stmt": {"tr": "Tedarikçi sözleşmesine gecikme cezası koydunuz. Bir ekip arkadaşınız “Artık gecikme riskimiz kalmadı” diyor.", "en": "You added a late-delivery penalty to the supplier contract. A colleague says: “We no longer have a delay risk.”"}, "options": [{"tr": "Doğru. Risk tamamen tedarikçiye aktarıldı.", "en": "True. The risk has been fully transferred to the supplier."}, {"tr": "Doğru. Ceza olduğu için tedarikçi geç kalmaz.", "en": "True. With a penalty in place the supplier will not be late."}, {"tr": "Yanlış. Paranın bir kısmı aktarıldı ama takvim etkisi hâlâ bizde. Bu artık risktir ve izlenmelidir.", "en": "False. Part of the money was transferred, but the schedule impact is still ours. This is residual risk and must be monitored."}, {"tr": "Yanlış. Ceza maddesi riski artırır.", "en": "False. A penalty clause increases the risk."}], "explain": {"tr": "Aktarmak riski yok etmez. Tedarikçi gecikirse ceza alırsınız ama projeniz yine gecikir. Bu yüzden aktarma çoğu zaman azaltma veya B planıyla birlikte kullanılır.", "en": "Transferring does not eliminate the risk. If the supplier is late you get a penalty payment, but your project is still late. That is why transfer is usually combined with mitigation or a Plan B."}, "short": {"tr": "Aktarmanın sınırı", "en": "The limits of transfer"}}], "bands": [{"min": 0.85, "tr": "Çok iyi. Stratejileri duruma göre doğru seçiyorsunuz. Risk Bütçesi oyununda bu beceri işinize yarayacak.", "en": "Very good. You match strategies to situations well. This skill will help you in the Risk Budget game."}, {"min": 0.6, "tr": "İyi bir başlangıç. Özellikle aktif ve pasif kabul ile garantile ve büyüt arasındaki farka bir kez daha bakın.", "en": "A good start. Take another look at the difference between active and passive acceptance, and between exploit and enhance."}, {"min": 0, "tr": "Stratejiler ilk başta birbirine benzeyebilir. Modül 4’ün ilk üç bölümüne dönüp tekrar denemenizi öneririm.", "en": "The strategies can look alike at first. I suggest revisiting the first three sections of Module 4 and trying again."}], "takeawayTitle": {"tr": "Akılda kalsın", "en": "Remember"}, "takeaway": {"tr": "Her risk için bilinçli bir karar verilir. Yanıtın maliyeti riskten pahalı olmamalı. Karar yetkinizi aşıyorsa eskale edin. Ve aktarmak riski yok etmez.", "en": "Every risk gets a conscious decision. The response should not cost more than the risk. If the decision is beyond your authority, escalate. And transferring a risk does not make it disappear."}};
+const UI = {
+  tr:{start:"Başla",next:"Sonraki",finish:"Sonucu gör",q:"Soru",of:"/",correct:"Doğru.",wrong:"Tam değil.",answer:"Doğru cevap:",
+      result:"Sonucunuz",retry:"Tekrar dene",review:"Cevaplarınızın özeti",questions:"soru",minutes:"dakika",
+      instant:"Anında geri bildirim",yours:"Sizin cevabınız:"},
+  en:{start:"Start",next:"Next",finish:"See result",q:"Question",of:"/",correct:"Correct.",wrong:"Not quite.",answer:"Correct answer:",
+      result:"Your result",retry:"Try again",review:"Summary of your answers",questions:"questions",minutes:"minutes",
+      instant:"Instant feedback",yours:"Your answer:"}
+};
+
+/* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
+const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
+const params = new URLSearchParams(location.search);
+let lang = (params.get("lang")||"tr").toLowerCase()==="en" ? "en" : "tr";
+let state = {screen:"intro", i:0, answers:[]};
+const $app = document.getElementById("app");
+const t = (o)=> (o && typeof o==="object" && ("tr" in o)) ? o[lang] : o;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function setLang(l){ lang=l; document.documentElement.lang=l;
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.l===l));
+  document.getElementById("brand").textContent = t(DATA.brand);
+  document.getElementById("foot").textContent = t(DATA.footer);
+  document.title = t(DATA.title); render(); }
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.l)));
+
+function render(){
+  const u = UI[lang];
+  if(state.screen==="intro"){
+    $app.innerHTML = `${firstName?`<p class="hello">${lang==="tr"?"Merhaba":"Hello"} ${esc(firstName)},</p>`:""}<h1>${esc(t(DATA.title))}</h1><p class="sub">${esc(t(DATA.subtitle))}</p>
+      ${t(DATA.intro).map(p=>`<p>${esc(p)}</p>`).join("")}
+      <div class="meta"><span class="chip">${DATA.items.length} ${u.questions}</span><span class="chip">~${DATA.minutes} ${u.minutes}</span><span class="chip">${u.instant}</span></div>
+      <button class="btn" id="go">${u.start}</button>`;
+    document.getElementById("go").onclick=()=>{state={screen:"q",i:0,answers:[]};render();};
+    return;
+  }
+  if(state.screen==="q"){
+    const it = DATA.items[state.i], ans = state.answers[state.i];
+    const pct = Math.round((state.i)/DATA.items.length*100);
+    const sec = DATA.sections.find(s=>s.id===it.section);
+    const opts = it.options || DATA.sections.find(s=>s.id===it.section).options;
+    const letters="ABCDEFGH";
+    $app.innerHTML = `
+      <div class="qhead"><span class="section">${esc(t(sec.label))}</span><span>${u.q} ${state.i+1} ${u.of} ${DATA.items.length}</span></div>
+      <div class="progress"><span style="width:${pct}%"></span></div>
+      <div class="prompt">${esc(t(it.prompt || sec.prompt))}</div>
+      ${it.stmt ? `<div class="stmt">${esc(t(it.stmt))}</div>` : ""}
+      <div class="opts ${opts.length===4 && !it.options ? "grid2":""}" role="group">
+        ${opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="tag">${letters[k]}</span>${esc(t(o))}</button>`).join("")}
+      </div>
+      <div id="fb"></div>
+      <div class="nav"><button class="btn" id="nx" ${ans===undefined?"disabled":""}>${state.i===DATA.items.length-1?u.finish:u.next}</button></div>`;
+    const btns=[...$app.querySelectorAll(".opt")];
+    const showFb=(k)=>{
+      btns.forEach(b=>{b.disabled=true; const bk=+b.dataset.k;
+        if(bk===it.correct) b.classList.add("correct"); else if(bk===k) b.classList.add("wrong");});
+      const ok = k===it.correct;
+      document.getElementById("fb").innerHTML = `<div class="fb ${ok?"ok":"no"}"><b>${ok?u.correct:u.wrong}${ok?"":" "+u.answer+" "+esc(t(opts[it.correct]))}</b>${esc(t(it.explain))}</div>`;
+      document.getElementById("nx").disabled=false;
+    };
+    btns.forEach(b=>b.onclick=()=>{ if(state.answers[state.i]!==undefined) return; const k=+b.dataset.k; state.answers[state.i]=k; showFb(k); document.getElementById("nx").focus(); });
+    if(ans!==undefined) showFb(ans);
+    document.getElementById("nx").onclick=()=>{ if(state.i<DATA.items.length-1){state.i++;} else {state.screen="result"; notify();} render(); window.scrollTo({top:0,behavior:"smooth"}); };
+    return;
+  }
+  if(state.screen==="result"){
+    const n=DATA.items.length, score=state.answers.filter((a,k)=>a===DATA.items[k].correct).length;
+    const band = DATA.bands.find(b=>score/n>=b.min);
+    $app.innerHTML = `<h2>${firstName?esc(firstName)+", "+u.result.toLowerCase():u.result}</h2><div class="score">${score} / ${n}</div>
+      <div class="msg">${esc(t(band))}</div>
+      <p><b>${esc(t(DATA.takeawayTitle))}</b></p><p>${esc(t(DATA.takeaway))}</p>
+      <h2 style="margin-top:22px">${u.review}</h2>
+      <div class="review">${DATA.items.map((it,k)=>{const ok=state.answers[k]===it.correct; const opts=it.options||DATA.sections.find(s=>s.id===it.section).options;
+        return `<div class="ritem"><span class="ico ${ok?"y":"n"}">${ok?"✓":"✗"}</span><div>${esc(t(it.short||it.stmt||it.prompt))}<br><span style="color:var(--muted)">${ok?"":u.yours+" "+esc(t(opts[state.answers[k]]))+" · "}${u.answer} ${esc(t(opts[it.correct]))}</span></div></div>`;}).join("")}</div>
+      <div class="row"><button class="btn ghost" id="again">${u.retry}</button></div>`;
+    document.getElementById("again").onclick=()=>{state={screen:"q",i:0,answers:[]};render();};
+  }
+}
+function notify(){
+  const n=DATA.items.length, score=state.answers.filter((a,k)=>a===DATA.items[k].correct).length;
+  try{ window.parent && window.parent!==window && window.parent.postMessage({type:"gbmc-activity-complete",id:DATA.id,score,total:n},"*"); }catch(e){}
+}
+setLang(lang);
+</script>
+</body>
+</html>

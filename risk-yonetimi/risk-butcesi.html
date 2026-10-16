@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk Bütçesi</title>
+<style>
+:root{
+  --teal:#1F6F6F; --teal-d:#164f4f; --teal-l:#e3f2f2; --mint:#f4fbfb; --line:#cfe5e5;
+  --ink:#1d2b2b; --muted:#5b6f6f; --amber:#c27c0e; --amber-l:#fff5e3; --amber-line:#f0d7a8;
+  --ok:#1e7a4c; --ok-l:#e6f5ec; --bad:#b4442f; --bad-l:#fbecea;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Segoe UI",Calibri,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--mint);line-height:1.5;font-size:16px}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);font-weight:700}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.lang button{border:0;background:transparent;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--teal);color:#fff}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(31,111,111,.06)}
+h1{font-size:28px;line-height:1.2;margin:0 0 6px;color:var(--teal-d)}
+h2{font-size:21px;margin:0 0 12px;color:var(--teal-d)}
+h3{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px}
+.sub{color:var(--muted)}
+.memo{background:var(--mint);border-left:4px solid var(--teal);border-radius:8px;padding:14px 16px;margin:16px 0}
+.memo .from{font-size:13px;color:var(--muted);margin-bottom:6px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.rule{background:var(--teal-l);border-radius:12px;padding:12px 14px;font-size:14px}
+.rule b{display:block;color:var(--teal-d);font-size:15px;margin-bottom:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer;background:var(--teal);color:#fff;min-height:44px}
+.btn:hover{background:var(--teal-d)}
+.btn.ghost{background:#fff;color:var(--teal);border:1px solid var(--teal)}
+.btn.amber{background:var(--amber)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* budget bar */
+.budget{position:sticky;top:0;z-index:5;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(31,111,111,.08)}
+.budget .line{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.budget .big{font-size:20px;font-weight:800;color:var(--teal-d)}
+.budget .big.over{color:var(--bad)}
+.bar{height:10px;background:var(--teal-l);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;background:var(--teal);transition:width .25s}
+.bar span.over{background:var(--bad)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{width:18px;height:18px;accent-color:var(--teal)}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.rc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.rc.opp{border-color:var(--amber-line);background:linear-gradient(#fffdf8,#fff)}
+.rc .hd{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.rc .num{font-size:12px;font-weight:700;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;background:var(--teal-l);color:var(--teal-d);white-space:nowrap}
+.chip.amber{background:var(--amber-l);color:#8a5806}
+.chip.red{background:var(--bad-l);color:var(--bad)}
+.rc .desc{font-size:14px;color:#334545}
+.optl{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;font-size:14px;transition:border-color .15s,background .15s}
+.optl:hover{border-color:var(--teal)}
+.optl input{margin-top:3px;width:18px;height:18px;accent-color:var(--teal);flex:0 0 auto}
+.optl.sel{border-color:var(--teal);background:var(--mint)}
+.optl .ot{font-weight:600}
+.optl .st{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--teal);margin-right:6px}
+.optl .eff{display:block;color:var(--muted);font-size:13px}
+.optl .ev{display:none;font-size:12px;font-weight:700;color:var(--amber);margin-top:2px}
+.showev .optl .ev{display:block}
+.cost{margin-left:auto;font-weight:700;white-space:nowrap;padding-left:8px}
+.warn{color:var(--bad);font-weight:600;font-size:14px}
+/* run */
+.months{display:grid;gap:14px}
+.month h3{color:var(--teal-d);font-size:15px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ev-row{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
+.ev-row.show{opacity:1;transform:none}
+.ev-row.hit{border-color:#efc6be;background:var(--bad-l)}
+.ev-row.win{border-color:var(--amber-line);background:var(--amber-l)}
+.ev-row.safe{border-color:#b9e0c9;background:var(--ok-l)}
+.ev-row .res{font-weight:700;white-space:nowrap}
+/* results */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.kpi{background:var(--mint);border-radius:12px;padding:12px}
+.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-size:22px;font-weight:800;overflow-wrap:anywhere}
+.kpi.net{background:var(--teal);color:#fff}.kpi.net .l{color:#d6eeee}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--teal-l);color:var(--teal-d);font-size:13px}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.me td{font-weight:700}
+.callout{background:var(--amber-l);border:1px solid var(--amber-line);border-radius:12px;padding:14px 16px;margin:16px 0}
+.mcbars{display:grid;gap:10px;margin:12px 0}
+.mcb .lbl{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+.mcb .track{height:14px;background:var(--teal-l);border-radius:999px;overflow:hidden}
+.mcb .fill{height:100%;border-radius:999px}
+.lesson{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.lesson .top2{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px}
+.badge.best{background:var(--ok-l);color:var(--ok)}
+.badge.ok{background:var(--amber-l);color:#8a5806}
+.badge.weak{background:var(--bad-l);color:var(--bad)}
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+.mt{margin-top:18px}
+@media (max-width:760px){.cards{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}h1{font-size:23px}.panel{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand" id="brand"></div>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-l="tr">TR</button><button type="button" data-l="en">EN</button></div>
+  </div>
+  <div id="app"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+"use strict";
+/* ---------- GAME DATA (amounts in thousand TL) ---------- */
+const BUDGET = 400;
+const ST = {
+  pas:{tr:"Kabul (pasif)",en:"Accept (passive)"}, act:{tr:"Kabul (aktif)",en:"Accept (active)"},
+  mit:{tr:"Azalt",en:"Mitigate"}, tra:{tr:"Aktar",en:"Transfer"}, esc:{tr:"Eskale et",en:"Escalate"},
+  enh:{tr:"Büyüt",en:"Enhance"}, sha:{tr:"Paylaş",en:"Share"}
+};
+const CARDS = [
+ {id:1, month:2, opp:false, p:.5, i:800,
+  t:{tr:"Şoför bulunamaması",en:"Drivers not found"},
+  cat:{tr:"İnsan",en:"People"},
+  d:{tr:"Soğutmalı araç tecrübeli şoför az ve İK ekibi Gebze işe alımıyla meşgul. 18 şoförün tamamı bulunamazsa seferler iptal olur.",en:"Drivers with refrigerated-truck experience are scarce and HR is busy with Gebze hiring. If not all 18 drivers are found, runs get cancelled."},
+  o:[{s:"pas",c:0,p:.5,i:800,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:150,p:.2,i:800,t:{tr:"Erken işe alım ve şoför akademisi",en:"Early hiring and a driver academy"}},
+     {s:"act",c:100,p:.5,i:300,t:{tr:"Personel firmasıyla yedek şoför anlaşması (B planı)",en:"Back-up driver agreement with a staffing firm (Plan B)"}}],
+  lesson:{tr:"Ucuz ve hazır bir B planı, pahalı bir önlemden daha verimli olabilir. Yedek şoför anlaşması olasılığı değil etkiyi düşürür, ama daha az paraya.",en:"A cheap, ready Plan B can beat an expensive prevention. The back-up agreement cuts the impact rather than the probability, for less money."}},
+ {id:2, month:2, opp:false, p:.4, i:500,
+  t:{tr:"Mobil uygulama gecikmesi",en:"Mobile app delay"},
+  cat:{tr:"Teknik",en:"Technical"},
+  d:{tr:"BT ekibi Gebze’deki yazılım geçişinde, Taze Hat’a bir kişi verebiliyor. Uygulama yetişmezse teslimatlar takipsiz kalır.",en:"The IT team is on the Gebze system migration and can give Taze Hat one person. If the app is late, deliveries go untracked."},
+  o:[{s:"pas",c:0,p:.4,i:500,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:200,p:.1,i:500,t:{tr:"Dış yazılım firmasıyla hızlandır",en:"Speed up with an external software firm"}},
+     {s:"act",c:40,p:.4,i:200,t:{tr:"Kâğıt ve tablo tabanlı yedek teslimat süreci hazırla",en:"Prepare a paper-and-spreadsheet back-up delivery process"}}],
+  lesson:{tr:"Pahalı hızlandırma yerine basit bir yedek süreç, etkinin büyük kısmını çok daha ucuza alır.",en:"Instead of expensive acceleration, a simple back-up process absorbs most of the impact for far less."}},
+ {id:3, month:1, opp:false, p:.3, i:1000,
+  t:{tr:"Gıda işletmesi kaydı gecikmesi",en:"Food business registration delay"},
+  cat:{tr:"Mevzuat",en:"Regulatory"},
+  d:{tr:"Aktarma deposu için başvuru henüz yapılmadı ve süreç haftalar sürebiliyor. Kayıt yetişmezse depo kullanılamaz, başlangıç ertelenir.",en:"The application for the cross-dock has not been filed and the process can take weeks. Without it the depot cannot be used and launch is postponed."},
+  o:[{s:"pas",c:0,p:.3,i:1000,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:60,p:.05,i:1000,t:{tr:"Danışmanla bu hafta başvur",en:"File this week with a consultant"}},
+     {s:"esc",c:20,p:.15,i:1000,t:{tr:"Kerem Bey il müdürlüğüyle görüşsün (eskalasyon)",en:"Ask Kerem Bey to meet the provincial directorate (escalation)"}}],
+  lesson:{tr:"En büyük risk, en ucuz önlemle neredeyse sıfırlanabiliyor. Bugün başlaması gereken işi bugün başlatın. Eskalasyon da yardımcı olur ama işi yapmanın yerini tutmaz.",en:"The biggest risk can be almost eliminated with one of the cheapest actions. Start today what must start today. Escalation helps, but it does not replace doing the work."}},
+ {id:4, month:3, opp:false, p:.25, i:600,
+  t:{tr:"Elektrik kesintisi, soğuk oda",en:"Power cut in the cold room"},
+  cat:{tr:"Teknik",en:"Technical"},
+  d:{tr:"Depoda jeneratör yok, bölgede kesinti sık. Soğuk oda ısınırsa ürün kaybı ve gıda güvenliği olayı yaşanır.",en:"The depot has no generator and outages are frequent. If the cold room warms up, products are lost and a food-safety incident follows."},
+  o:[{s:"pas",c:0,p:.25,i:600,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:100,p:.25,i:50,t:{tr:"Jeneratör kirala",en:"Rent a generator"}},
+     {s:"tra",c:60,p:.25,i:300,t:{tr:"Ürün sigortası (itibar kaybı ve muafiyet kapsam dışı)",en:"Product insurance (reputation loss and deductible not covered)"}}],
+  lesson:{tr:"Sigorta parayı karşılar, itibarı karşılamaz. Gıda güvenliğinde önleme yatırım çoğu zaman aktarmadan iyidir. Ama bütçe sınırlıysa, bu kart sırada geride kalabilir.",en:"Insurance covers money, not reputation. In food safety, prevention usually beats transfer. But with a tight budget this card may rank lower."}},
+ {id:5, month:4, opp:false, p:.6, i:150,
+  t:{tr:"Kış yolu gecikmeleri",en:"Winter road delays"},
+  cat:{tr:"Dış etken",en:"External"},
+  d:{tr:"Kasımdan itibaren Ankara–Konya yolunda buzlanma ve sis olabilir. Bazı sabahlar Konya teslimatları gecikir, küçük cezalar oluşur.",en:"From November there may be ice and fog on the Ankara–Konya road. Some mornings Konya deliveries are late and small penalties arise."},
+  o:[{s:"pas",c:0,p:.6,i:150,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:40,p:.4,i:150,t:{tr:"Kış lastiği ve alternatif rota planı",en:"Winter tyres and an alternative route plan"}},
+     {s:"mit",c:120,p:.6,i:50,t:{tr:"Konya için ek araç ve erken çıkış",en:"Extra truck and earlier departure for Konya"}}],
+  lesson:{tr:"Etkisi düşük risklerde en iyi karar çoğu zaman bilinçli kabul etmektir. Her riske para harcanmaz.",en:"For low-impact risks the best decision is often conscious acceptance. Not every risk deserves money."}},
+ {id:6, month:4, opp:false, p:.5, i:200,
+  t:{tr:"Yakıt fiyatı artışı",en:"Fuel price increase"},
+  cat:{tr:"Bütçe",en:"Budget"},
+  d:{tr:"Taşıma fiyatı bir yıl sabit, bütçe bugünkü yakıt fiyatıyla yapıldı. Yakıt artarsa kâr marjı erir.",en:"The transport price is fixed for a year and the budget uses today’s fuel price. If fuel rises, the margin shrinks."},
+  o:[{s:"pas",c:0,p:.5,i:200,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"tra",c:50,p:.5,i:40,t:{tr:"Akaryakıt firmasıyla sabit fiyat anlaşması",en:"Fixed-price agreement with the fuel company"}},
+     {s:"mit",c:30,p:.3,i:200,t:{tr:"Müşteriyle yakıt endeksi maddesi müzakeresi",en:"Negotiate a fuel-index clause with the client"}}],
+  lesson:{tr:"Küçük bir anlaşma, belirsizliği sabitler. Burada aktarma işe yarıyor, çünkü etki tamamen parasal.",en:"A small agreement locks in the uncertainty. Transfer works here because the impact is purely financial."}},
+ {id:7, month:3, opp:false, p:.5, i:300,
+  t:{tr:"Mağazalar teslim alamıyor",en:"Stores not ready to receive"},
+  cat:{tr:"Paydaş",en:"Stakeholder"},
+  d:{tr:"Bazı mağazalarda sabah 07.00’de teslim alacak kimse yok. Araç bekler, sonraki mağazalar gecikir, soğuk zincir bozulur.",en:"Some stores have nobody to receive goods at 07:00. The truck waits, later stores are delayed and the cold chain breaks."},
+  o:[{s:"pas",c:0,p:.5,i:300,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"mit",c:20,p:.15,i:300,t:{tr:"Komşu Raf ile teslim saatlerini mağaza mağaza netleştir",en:"Agree delivery times store by store with Komşu Raf"}},
+     {s:"mit",c:250,p:.05,i:300,t:{tr:"Mağazalara akıllı kilitli teslim dolabı kur",en:"Install smart-lock delivery lockers at stores"}}],
+  lesson:{tr:"Bir görüşme bazen bir yatırımdan daha etkilidir. Yanıtın maliyeti riskin kendisinden pahalı olmamalı.",en:"A conversation can be more effective than an investment. A response should not cost more than the risk itself."}},
+ {id:8, month:4, opp:true, p:.3, i:1200,
+  t:{tr:"FIRSAT: 200 mağazaya genişleme",en:"OPPORTUNITY: expansion to 200 stores"},
+  cat:{tr:"Fırsat",en:"Opportunity"},
+  d:{tr:"İlk üç ay %98 zamanında teslimat yakalanırsa sözleşme 200 mağazaya genişliyor. Bu ciddi bir ek kazanç demek.",en:"If on-time delivery reaches 98% in the first three months, the contract grows to 200 stores. That means a significant extra gain."},
+  o:[{s:"pas",c:0,p:.3,i:1200,t:{tr:"Bir şey yapma",en:"Do nothing"}},
+     {s:"enh",c:120,p:.55,i:1200,t:{tr:"İlk 3 ay için kalite ekibi ve günlük performans takibi",en:"Quality team and daily performance tracking for the first 3 months"}},
+     {s:"sha",c:30,p:.5,i:600,t:{tr:"Bir lojistik ortağıyla ortak kapasite sözü ver (kazanç yarı yarıya)",en:"Commit joint capacity with a logistics partner (gain split in half)"}}],
+  lesson:{tr:"Fırsatlar da yönetilir. Doğru yatırım, fırsatın olasılığını büyütür. Paylaşmak olasılığı artırsa da kazancı böler.",en:"Opportunities are managed too. The right investment enhances the chance of the opportunity. Sharing raises the chance but splits the gain."}}
+];
+/* ---------- UI TEXT ---------- */
+const TX = {
+ tr:{brand:"GBMC · Risk Yönetimi", foot:"Risk Yönetimi: Tanımlamadan Aksiyona · Risk Bütçesi oyunu",
+  title:"Risk Bütçesi", tag:"Taze Hat projesi · Sınırlı bütçe, sekiz kart, bir karar",
+  memoFrom:"Kerem Bey’den, Taze Hat proje yöneticisine",
+  memo:["Risk listeni gördüm, emeğine sağlık. Sana risk yanıtları için 400 bin TL bütçe veriyorum. Fazlası yok.","Hepsine yetmeyecek, biliyorum. Hangisine ne kadar ayıracağına sen karar ver. Harcamadığın para şirkette kalır.","Dört ay sonra sonuca birlikte bakacağız."],
+  r1:"Bütçe", r1t:"400 bin TL. Her kart için bir seçenek seçin. Bir şey yapmamak da bir seçenektir.",
+  r2:"Proje yaşanır", r2t:"Dört ay boyunca her risk, seçtiğiniz olasılıkla gerçekleşir ya da gerçekleşmez.",
+  r3:"Sonuç", r3t:"Net sonuç = − harcama − kayıplar + fırsat kazancı. Şansı ve kararı ayrı ayrı göreceksiniz.",
+  start:"Oyuna başla", remaining:"Kalan bütçe", of:"/", k:"bin TL",
+  showEv:"Beklenen değeri göster (ipucu)", ev:"Beklenen etki", over:"Bütçeyi aşıyorsunuz. Bazı seçimlerinizi değiştirin.",
+  run:"Projeyi başlat", prob:"Olasılık", impact:"Etki", gain:"Kazanç", cost:"Maliyet",
+  month:"Ay", happened:"Gerçekleşti", notHappened:"Gerçekleşmedi", oppWon:"Fırsat yakalandı", oppMissed:"Fırsat kaçtı",
+  spent:"Harcama", losses:"Kayıplar", gains:"Fırsat kazancı", net:"Net sonuç",
+  compare:"Aynı zarlarla karşılaştırma", compareNote:"Aşağıdaki üç plan, bu turda tamamen aynı olaylarla karşılaştı. Fark sadece kararlardan geliyor.",
+  plan:"Plan", yours:"Sizin planınız", nothing:"Hiçbir şey yapmasaydınız", best:"Bütçeye göre en iyi plan",
+  mcBtn:"Planımı 1.000 kez oynat", mcTitle:"1.000 tur sonra ortalama", mcNote:"Tek bir tur şansa bağlıdır. Ortalama ise kararın kalitesini gösterir.",
+  beat:"Planınız 1.000 turun {x} tanesinde “hiçbir şey yapmamak”tan daha iyi ya da eşit sonuç verdi.",
+  lessons:"Kart kart ders", your:"Seçiminiz", bestCard:"Bu kart için en iyi seçenek", bestB:"En iyi seçim", okB:"Makul", weakB:"Geliştirilebilir",
+  again:"Aynı planla yeniden oyna", change:"Planımı değiştir", restart:"Baştan başla",
+  luckGood:"Bu tur şans sizden yanaydı.", luckBad:"Bu tur şans sizden yana değildi.",
+  takeaway:"Akılda kalsın: İyi karar her zaman iyi sonuç getirmez. Ama ortalamada kazandırır. Risk yönetimi şansı değil, ortalamayı yönetir.",
+  evLine:"Beklenen etki"},
+ en:{brand:"GBMC · Risk Management", foot:"Risk Management: From Identification to Action · Risk Budget game",
+  title:"Risk Budget", tag:"Taze Hat project · Limited budget, eight cards, one decision",
+  memoFrom:"From Kerem Bey, to the Taze Hat project manager",
+  memo:["I saw your risk list, well done. I am giving you a TL 400k budget for risk responses. There is no more.","It will not cover everything, I know. You decide how much goes where. Any money you do not spend stays with the company.","We will review the outcome together in four months."],
+  r1:"Budget", r1t:"TL 400k. Choose one option per card. Doing nothing is also an option.",
+  r2:"The project runs", r2t:"Over four months each risk happens or not, with the probability you chose.",
+  r3:"Result", r3t:"Net result = − spend − losses + opportunity gain. You will see luck and decision quality separately.",
+  start:"Start the game", remaining:"Budget left", of:"/", k:"k TL",
+  showEv:"Show expected value (hint)", ev:"Expected impact", over:"You are over budget. Change some of your choices.",
+  run:"Run the project", prob:"Probability", impact:"Impact", gain:"Gain", cost:"Cost",
+  month:"Month", happened:"Happened", notHappened:"Did not happen", oppWon:"Opportunity captured", oppMissed:"Opportunity missed",
+  spent:"Spend", losses:"Losses", gains:"Opportunity gain", net:"Net result",
+  compare:"Comparison with the same dice", compareNote:"The three plans below faced exactly the same events this round. The difference comes only from decisions.",
+  plan:"Plan", yours:"Your plan", nothing:"If you had done nothing", best:"Best plan within budget",
+  mcBtn:"Play my plan 1,000 times", mcTitle:"Average after 1,000 rounds", mcNote:"A single round depends on luck. The average shows the quality of the decision.",
+  beat:"Your plan did as well as or better than “doing nothing” in {x} of 1,000 rounds.",
+  lessons:"Lessons card by card", your:"Your choice", bestCard:"Best option for this card", bestB:"Best choice", okB:"Reasonable", weakB:"Could improve",
+  again:"Play again with the same plan", change:"Change my plan", restart:"Start over",
+  luckGood:"Luck was on your side this round.", luckBad:"Luck was not on your side this round.",
+  takeaway:"Remember: a good decision does not always bring a good outcome. But it wins on average. Risk management manages the average, not luck.",
+  evLine:"Expected impact"}
+};
+/* ---------- STATE ---------- */
+const qs = new URLSearchParams(location.search);
+let lang = (qs.get("lang")||"tr").toLowerCase()==="en"?"en":"tr";
+/* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
+const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
+
+let sel = CARDS.map(()=>0);
+let showEv = false;
+let last = null; // last run
+let mc = null;
+let notified = false;
+const $ = s=>document.querySelector(s);
+const app = $("#app");
+const L = ()=>TX[lang];
+const tt = o=>o[lang];
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n=>{const v=Math.round(n); const s=Math.abs(v).toLocaleString(lang==="tr"?"tr-TR":"en-GB"); return (v<0?"−":"")+s;};
+const money = n=> lang==="tr" ? `${fmt(n)} bin TL` : `TL ${fmt(n)}k`;
+const signed = n=> (n>0?"+":"")+money(n);
+const pct = p=>`%${Math.round(p*100)}`.replace(/^%(\d+)$/, lang==="tr"?"%$1":"$1%");
+
+/* ---------- MODEL ---------- */
+const optEV = (c,o)=> c.opp ? (o.p*o.i - o.c) : -(o.c + o.p*o.i);     // value (higher is better)
+const spend = s=> s.reduce((a,k,j)=>a+CARDS[j].o[k].c,0);
+function bestPlan(){ // brute force 3^8 within budget
+  let best=null,bestV=-1e9; const n=CARDS.length; const total=Math.pow(3,n);
+  for(let m=0;m<total;m++){ let x=m, s=[], c=0, v=0;
+    for(let j=0;j<n;j++){ const k=x%3; x=(x-k)/3; s.push(k); const o=CARDS[j].o[k]; c+=o.c; v+=optEV(CARDS[j],o); }
+    if(c<=BUDGET && v>bestV){bestV=v;best=s;} }
+  return best;
+}
+const BEST = bestPlan();
+const NOTHING = CARDS.map(()=>0);
+function outcome(plan,u){ let sp=0,loss=0,gain=0; const ev=[];
+  CARDS.forEach((c,j)=>{ const o=c.o[plan[j]]; sp+=o.c; const hit=u[j]<o.p;
+    if(c.opp){ if(hit) gain+=o.i; } else { if(hit) loss+=o.i; } ev.push(hit); });
+  return {sp,loss,gain,net:-sp-loss+gain,ev}; }
+const dice = ()=>CARDS.map(()=>Math.random());
+
+/* ---------- RENDER ---------- */
+function setLang(l){ lang=l; document.documentElement.lang=l;
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===l));
+  $("#brand").textContent=L().brand; $("#foot").textContent=L().foot; document.title=L().title; route(); }
+document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.l)));
+let screen="intro";
+function route(){ ({intro:renderIntro,plan:renderPlan,run:renderRun,result:renderResult})[screen](); }
+
+function renderIntro(){ const t=L();
+  app.innerHTML=`<div class="panel">
+   <h1>${t.title}</h1><p class="sub">${t.tag}</p>
+   <div class="memo"><div class="from">${t.memoFrom}</div>${firstName?`<p>${lang==="tr"?"Merhaba":"Hi"} ${esc(firstName)},</p>`:""}${t.memo.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+   <div class="rules"><div class="rule"><b>1 · ${t.r1}</b>${t.r1t}</div><div class="rule"><b>2 · ${t.r2}</b>${t.r2t}</div><div class="rule"><b>3 · ${t.r3}</b>${t.r3t}</div></div>
+   <button class="btn" id="go">${t.start}</button></div>`;
+  $("#go").onclick=()=>{screen="plan";route();};
+}
+function budgetBar(){ const t=L(), s=spend(sel), rem=BUDGET-s, over=rem<0;
+  return `<div class="budget"><div class="line">
+     <div>${t.remaining}: <span class="big ${over?"over":""}">${money(rem)}</span> <span class="sub">${t.of} ${money(BUDGET)}</span></div>
+     <label class="toggle"><input type="checkbox" id="evt" ${showEv?"checked":""}> ${t.showEv}</label></div>
+     <div class="bar"><span class="${over?"over":""}" style="width:${Math.min(100,s/BUDGET*100)}%"></span></div>
+     ${over?`<div class="warn" style="margin-top:6px">${t.over}</div>`:""}</div>`; }
+function effText(c,o){ const t=L(); const parts=[];
+  if(o.p!==c.p) parts.push(`${t.prob} ${pct(c.p)} → ${pct(o.p)}`); else parts.push(`${t.prob} ${pct(o.p)}`);
+  const lab=c.opp?t.gain:t.impact;
+  if(o.i!==c.i) parts.push(`${lab} ${money(c.i)} → ${money(o.i)}`); else parts.push(`${lab} ${money(o.i)}`);
+  return parts.join(" · "); }
+function renderPlan(){ const t=L();
+  app.innerHTML = budgetBar() + `<div class="cards ${showEv?"showev":""}" id="cards">${CARDS.map((c,j)=>`
+   <section class="rc ${c.opp?"opp":""}" aria-labelledby="ct${j}">
+     <div class="hd"><div><div class="num">${c.opp?"★":"#"+c.id}</div><h3 id="ct${j}">${esc(tt(c.t))}</h3></div>
+       <div class="chips"><span class="chip ${c.opp?"amber":""}">${esc(tt(c.cat))}</span></div></div>
+     <div class="chips"><span class="chip ${c.opp?"amber":"red"}">${t.prob} ${pct(c.p)}</span><span class="chip ${c.opp?"amber":"red"}">${c.opp?t.gain:t.impact} ${money(c.i)}</span></div>
+     <div class="desc">${esc(tt(c.d))}</div>
+     ${c.o.map((o,k)=>`<label class="optl ${sel[j]===k?"sel":""}"><input type="radio" name="c${j}" value="${k}" ${sel[j]===k?"checked":""}>
+        <span><span class="st">${esc(tt(ST[o.s]))}</span><span class="ot">${esc(tt(o.t))}</span><span class="eff">${effText(c,o)}</span>
+        <span class="ev">${t.evLine}: ${signed(optEV(c,o))}</span></span><span class="cost">${money(o.c)}</span></label>`).join("")}
+   </section>`).join("")}</div>
+   <div class="row mt"><button class="btn" id="runb" ${spend(sel)>BUDGET?"disabled":""}>${t.run}</button></div>`;
+  app.querySelectorAll("input[type=radio]").forEach(r=>r.addEventListener("change",e=>{
+    const j=+e.target.name.slice(1); sel[j]=+e.target.value; const y=window.scrollY; renderPlan(); window.scrollTo(0,y); }));
+  $("#evt").onchange=e=>{showEv=e.target.checked; const y=window.scrollY; renderPlan(); window.scrollTo(0,y);};
+  $("#runb").onclick=()=>{ const u=dice(); last={u, me:outcome(sel,u), no:outcome(NOTHING,u), best:outcome(BEST,u), plan:sel.slice()}; mc=null; screen="run"; route(); window.scrollTo(0,0); };
+}
+function renderRun(){ const t=L(); const months=[1,2,3,4];
+  app.innerHTML=`<div class="panel"><h2>${t.run}…</h2><div class="months">${months.map(m=>`<div class="month"><h3>${t.month} ${m}</h3>${
+     CARDS.map((c,j)=>c.month!==m?"":(()=>{const o=c.o[last.plan[j]]; const hit=last.me.ev[j];
+       const cls=c.opp?(hit?"win":""):(hit?"hit":"safe");
+       const res=c.opp?(hit?`${t.oppWon} ${signed(o.i)}`:t.oppMissed):(hit?`${t.happened} ${signed(-o.i)}`:t.notHappened);
+       return `<div class="ev-row ${cls}" data-j="${j}"><span>${esc(tt(c.t))}</span><span class="res">${res}</span></div>`;})()).join("")}</div>`).join("")}</div></div>`;
+  const rows=[...app.querySelectorAll(".ev-row")]; let k=0;
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const step=()=>{ if(k<rows.length){ rows[k++].classList.add("show"); setTimeout(step, reduce?0:450);} else setTimeout(()=>{screen="result";route();window.scrollTo(0,0);}, reduce?0:900); };
+  step();
+}
+function runMC(){ const N=1000; let a={me:0,no:0,best:0}, beat=0;
+  for(let r=0;r<N;r++){ const u=dice(); const m=outcome(last.plan,u).net, n=outcome(NOTHING,u).net, b=outcome(BEST,u).net;
+    a.me+=m; a.no+=n; a.best+=b; if(m>=n) beat++; }
+  mc={me:a.me/N,no:a.no/N,best:a.best/N,beat:beat/N}; }
+function renderResult(){ const t=L(), r=last.me;
+  const expMe = last.plan.reduce((a,k,j)=>a+optEV(CARDS[j],CARDS[j].o[k]),0);
+  const luck = r.net >= expMe ? t.luckGood : t.luckBad;
+  if(!notified){ notified=true; try{ if(window.parent!==window) window.parent.postMessage({type:"gbmc-activity-complete",id:"RM-GAME",net:Math.round(r.net)},"*"); }catch(e){} }
+  const rowsCmp=[[t.yours,last.me,true],[t.nothing,last.no,false],[t.best,last.best,false]];
+  const mx = mc ? Math.max(Math.abs(mc.me),Math.abs(mc.no),Math.abs(mc.best),1) : 1;
+  app.innerHTML=`<div class="panel">
+   <h2>${t.net}</h2>
+   <div class="kpis"><div class="kpi"><div class="l">${t.spent}</div><div class="v">${money(-r.sp)}</div></div>
+     <div class="kpi"><div class="l">${t.losses}</div><div class="v">${money(-r.loss)}</div></div>
+     <div class="kpi"><div class="l">${t.gains}</div><div class="v">${signed(r.gain)}</div></div>
+     <div class="kpi net"><div class="l">${t.net}</div><div class="v">${signed(r.net)}</div></div></div>
+   <p>${firstName?esc(firstName)+", "+luck.charAt(0).toLowerCase()+luck.slice(1):luck}</p>
+   <h3 class="mt">${t.compare}</h3><p class="sub">${t.compareNote}</p>
+   <div class="tw"><table><thead><tr><th>${t.plan}</th><th class="n">${t.spent}</th><th class="n">${t.losses}</th><th class="n">${t.gains}</th><th class="n">${t.net}</th></tr></thead><tbody>
+   ${rowsCmp.map(([n,o,me])=>`<tr class="${me?"me":""}"><td>${n}</td><td class="n">${money(-o.sp)}</td><td class="n">${money(-o.loss)}</td><td class="n">${signed(o.gain)}</td><td class="n">${signed(o.net)}</td></tr>`).join("")}
+   </tbody></table></div>
+   <div class="callout"><b>${t.mcTitle}</b><p class="sub" style="margin:4px 0 8px">${t.mcNote}</p>
+    ${mc?`<div class="mcbars">${[[t.yours,mc.me,"var(--teal)"],[t.nothing,mc.no,"var(--bad)"],[t.best,mc.best,"var(--ok)"]].map(([n,v,col])=>`<div class="mcb"><div class="lbl"><span>${n}</span><b>${signed(v)}</b></div><div class="track"><div class="fill" style="width:${Math.abs(v)/mx*100}%;background:${col}"></div></div></div>`).join("")}</div>
+      <p style="margin:0">${t.beat.replace("{x}",Math.round(mc.beat*1000).toLocaleString(lang==="tr"?"tr-TR":"en-GB"))}</p>`
+      :`<button class="btn amber" id="mcb">${t.mcBtn}</button>`}
+   </div>
+   <p><b>${t.takeaway}</b></p>
+   <h3 class="mt">${t.lessons}</h3>
+   ${CARDS.map((c,j)=>{ const k=last.plan[j]; const vals=c.o.map(o=>optEV(c,o)); const bestK=vals.indexOf(Math.max(...vals));
+      const gap=vals[bestK]-vals[k]; const badge = gap<0.5?["best",t.bestB]:(gap<=40?["ok",t.okB]:["weak",t.weakB]);
+      return `<div class="lesson"><div class="top2"><b>${esc(tt(c.t))}</b><span class="badge ${badge[0]}">${badge[1]}</span></div>
+        <div class="sub" style="font-size:14px">${t.your}: ${esc(tt(c.o[k].t))} (${t.ev}: ${signed(vals[k])})${k!==bestK?` · ${t.bestCard}: ${esc(tt(c.o[bestK].t))} (${signed(vals[bestK])})`:""}</div>
+        <div style="font-size:14px;margin-top:4px">${esc(tt(c.lesson))}</div></div>`;}).join("")}
+   <div class="row mt"><button class="btn" id="again">${t.again}</button><button class="btn ghost" id="chg">${t.change}</button><button class="btn ghost" id="rs">${t.restart}</button></div>
+  </div>`;
+  const b=$("#mcb"); if(b) b.onclick=()=>{ runMC(); const y=window.scrollY; renderResult(); window.scrollTo(0,y); };
+  $("#again").onclick=()=>{ const u=dice(); last={u, me:outcome(last.plan,u), no:outcome(NOTHING,u), best:outcome(BEST,u), plan:last.plan.slice()}; mc=null; screen="run"; route(); window.scrollTo(0,0); };
+  $("#chg").onclick=()=>{ screen="plan"; route(); window.scrollTo(0,0); };
+  $("#rs").onclick=()=>{ sel=CARDS.map(()=>0); showEv=false; last=null; mc=null; screen="intro"; route(); window.scrollTo(0,0); };
+}
+setLang(lang);
+</script>
+</body>
+</html>
