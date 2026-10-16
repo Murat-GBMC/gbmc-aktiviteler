@@ -64,9 +64,6 @@ h2{font-size:20px;margin:0 0 12px;color:var(--teal-d)}
 <div class="wrap">
   <div class="top">
     <div class="brand" id="brand"></div>
-    <div class="lang" role="group" aria-label="Language">
-      <button type="button" data-l="tr">TR</button><button type="button" data-l="en">EN</button>
-    </div>
   </div>
   <main class="card" id="app" aria-live="polite"></main>
   <div class="foot" id="foot"></div>
@@ -86,7 +83,7 @@ const UI = {
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
   if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
 const params = new URLSearchParams(location.search);
-let lang = (params.get("lang")||"tr").toLowerCase()==="en" ? "en" : "tr";
+let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 let state = {screen:"intro", i:0, answers:[]};
 const $app = document.getElementById("app");
 const t = (o)=> (o && typeof o==="object" && ("tr" in o)) ? o[lang] : o;

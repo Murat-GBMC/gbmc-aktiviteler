@@ -1,6 +1,6 @@
 # GBMC Aktiviteler
 
-PDU Circle ve CoE eğitimlerinde LearnWorlds'e **Embed** olarak yerleştirilen etkileşimli aktiviteler (assessment, oyun). GitHub Pages ile yayınlanır:
+PDU Circle ve CoE eğitimlerinin **Türkçe okulunda** LearnWorlds'e **Embed** olarak yerleştirilen etkileşimli aktiviteler (assessment, oyun). GitHub Pages ile yayınlanır:
 `https://murat-gbmc.github.io/gbmc-aktiviteler/`
 
 ## Klasörler
@@ -11,17 +11,18 @@ PDU Circle ve CoE eğitimlerinde LearnWorlds'e **Embed** olarak yerleştirilen e
 
 ## Adres parametreleri
 
-- `lang=tr` veya `lang=en` — dil (varsayılan: tr)
 - `name={{USER_NAME}}` — LearnWorlds kullanıcı adı; yalnızca ilk ad ekranda selamlamada gösterilir. Hiçbir yere kaydedilmez veya gönderilmez.
 
 Örnek embed kodu:
 
 ```html
-<iframe src="https://murat-gbmc.github.io/gbmc-aktiviteler/risk-yonetimi/risk-butcesi.html?lang=tr&name={{USER_NAME}}"
+<iframe src="https://murat-gbmc.github.io/gbmc-aktiviteler/risk-yonetimi/risk-butcesi.html?name={{USER_NAME}}"
         width="100%" height="900" style="border:0" allow="fullscreen"></iframe>
 ```
 
 ## Kurallar
+
+- Bu depodaki aktiviteler yalnızca Türkçedir. İngilizce okulun aktiviteleri ayrı kurgulanacak.
 
 - Depo herkese açıktır. **Final sınavları ve not verilen içerikler buraya konmaz** (LearnWorlds'ün kendi sınav aracında kalır).
 - Kişisel veri (e-posta, kullanıcı kimliği) adres parametresi olarak gönderilmez ve saklanmaz.

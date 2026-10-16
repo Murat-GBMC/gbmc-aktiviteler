@@ -109,7 +109,6 @@ tr.me td{font-weight:700}
 <div class="wrap">
   <div class="top">
     <div class="brand" id="brand"></div>
-    <div class="lang" role="group" aria-label="Language"><button type="button" data-l="tr">TR</button><button type="button" data-l="en">EN</button></div>
   </div>
   <div id="app"></div>
   <div class="foot" id="foot"></div>
@@ -236,7 +235,7 @@ const TX = {
 };
 /* ---------- STATE ---------- */
 const qs = new URLSearchParams(location.search);
-let lang = (qs.get("lang")||"tr").toLowerCase()==="en"?"en":"tr";
+let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 /* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
   if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
