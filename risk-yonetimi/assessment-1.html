@@ -81,7 +81,7 @@ const UI = {
 
 /* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
-  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!/^\p{Lu}/u.test(f) || /[-_]/.test(f)) return ""; return f.slice(0,30); })();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!f) return ""; return (f.charAt(0).toLocaleUpperCase("tr-TR")+f.slice(1)).slice(0,30); })();
 const params = new URLSearchParams(location.search);
 let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 let state = {screen:"intro", i:0, answers:[]};
@@ -99,7 +99,7 @@ document.querySelectorAll(".lang button").forEach(b=>b.addEventListener("click",
 function render(){
   const u = UI[lang];
   if(state.screen==="intro"){
-    $app.innerHTML = `${firstName?`<p class="hello">${lang==="tr"?"Merhaba":"Hello"} ${esc(firstName)},</p>`:""}<h1>${esc(t(DATA.title))}</h1><p class="sub">${esc(t(DATA.subtitle))}</p>
+    $app.innerHTML = `${firstName?`<p class="hello">${lang==="tr"?"Selam":"Hi"} ${esc(firstName)},</p>`:""}<h1>${esc(t(DATA.title))}</h1><p class="sub">${esc(t(DATA.subtitle))}</p>
       ${t(DATA.intro).map(p=>`<p>${esc(p)}</p>`).join("")}
       <div class="meta"><span class="chip">${DATA.items.length} ${u.questions}</span><span class="chip">~${DATA.minutes} ${u.minutes}</span><span class="chip">${u.instant}</span></div>
       <button class="btn" id="go">${u.start}</button>`;

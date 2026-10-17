@@ -241,7 +241,7 @@ const qs = new URLSearchParams(location.search);
 let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 /* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
-  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!/^\p{Lu}/u.test(f) || /[-_]/.test(f)) return ""; return f.slice(0,30); })();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!f) return ""; return (f.charAt(0).toLocaleUpperCase("tr-TR")+f.slice(1)).slice(0,30); })();
 
 let sel = CARDS.map(()=>0);
 let showEv = false;
@@ -287,7 +287,7 @@ function route(){ ({intro:renderIntro,plan:renderPlan,run:renderRun,result:rende
 function renderIntro(){ const t=L();
   app.innerHTML=`<div class="panel">
    <h1>${t.title}</h1><p class="sub">${t.tag}</p>
-   <div class="memo"><div class="from">${t.memoFrom}</div>${firstName?`<p>${lang==="tr"?"Merhaba":"Hi"} ${esc(firstName)},</p>`:""}${t.memo.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+   <div class="memo"><div class="from">${t.memoFrom}</div>${firstName?`<p>${lang==="tr"?"Selam":"Hi"} ${esc(firstName)},</p>`:""}${t.memo.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
    <div class="rules"><div class="rule"><b>1 · ${t.r1}</b>${t.r1t}</div><div class="rule"><b>2 · ${t.r2}</b>${t.r2t}</div><div class="rule"><b>3 · ${t.r3}</b>${t.r3t}</div></div>
    <button class="btn" id="go">${t.start}</button></div>`;
   $("#go").onclick=()=>{screen="plan";route();};
