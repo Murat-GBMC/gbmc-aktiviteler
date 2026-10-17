@@ -81,7 +81,7 @@ const UI = {
 
 /* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
-  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!/^\p{Lu}/u.test(f) || /[-_]/.test(f)) return ""; return f.slice(0,30); })();
 const params = new URLSearchParams(location.search);
 let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 let state = {screen:"intro", i:0, answers:[]};

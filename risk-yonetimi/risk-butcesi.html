@@ -101,6 +101,9 @@ tr.me td{font-weight:700}
 .badge.ok{background:var(--amber-l);color:#8a5806}
 .badge.weak{background:var(--bad-l);color:var(--bad)}
 .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+.luckbox{background:var(--mint);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:6px 0 4px}
+.lrow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:5px 0;font-size:15px}
+.warnnote{margin:10px 0 0;background:var(--amber-l);border:1px solid var(--amber-line);border-radius:8px;padding:8px 10px;font-size:14px}
 .mt{margin-top:18px}
 @media (max-width:760px){.cards{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}h1{font-size:23px}.panel{padding:18px}}
 </style>
@@ -208,7 +211,7 @@ const TX = {
   beat:"Planınız 1.000 turun {x} tanesinde “hiçbir şey yapmamak”tan daha iyi ya da eşit sonuç verdi.",
   lessons:"Kart kart ders", your:"Seçiminiz", bestCard:"Bu kart için en iyi seçenek", bestB:"En iyi seçim", okB:"Makul", weakB:"Geliştirilebilir",
   again:"Aynı planla yeniden oyna", change:"Planımı değiştir", restart:"Baştan başla",
-  luckGood:"Bu tur şans sizden yanaydı.", luckBad:"Bu tur şans sizden yana değildi.",
+  luckTitle:"Bu tur şans mı, karar mı?", expLbl:"Planınızın ortalama beklenen sonucu", thisLbl:"Bu turdaki sonucunuz", luckGood:"Bu tur, planınızın ortalamasından iyi geçti. Yani bu turda şans sizden yanaydı.", luckBad:"Bu tur, planınızın ortalamasından kötü geçti. Yani bu turda şans sizden yana değildi.", negNote:"Sonucun eksi çıkması normal. Bu projede riskler ancak azaltılabilir, tamamen yok edilemez. Oyunun ölçtüğü şey, kaybı ne kadar küçülttüğünüz.", nothingWon:"Dikkat: Bu turda “hiçbir şey yapmamak” sizinkinden iyi sonuç verdi. Tek turda bu olabilir; şanstır. Kararın kalitesini görmek için planınızı 1.000 kez oynatın.",
   takeaway:"Akılda kalsın: İyi karar her zaman iyi sonuç getirmez. Ama ortalamada kazandırır. Risk yönetimi şansı değil, ortalamayı yönetir.",
   evLine:"Beklenen etki"},
  en:{brand:"GBMC · Risk Management", foot:"Risk Management: From Identification to Action · Risk Budget game",
@@ -229,7 +232,7 @@ const TX = {
   beat:"Your plan did as well as or better than “doing nothing” in {x} of 1,000 rounds.",
   lessons:"Lessons card by card", your:"Your choice", bestCard:"Best option for this card", bestB:"Best choice", okB:"Reasonable", weakB:"Could improve",
   again:"Play again with the same plan", change:"Change my plan", restart:"Start over",
-  luckGood:"Luck was on your side this round.", luckBad:"Luck was not on your side this round.",
+  luckTitle:"Luck or decision?", expLbl:"Your plan’s average expected result", thisLbl:"Your result this round", luckGood:"This round went better than your plan’s average. So luck was on your side this round.", luckBad:"This round went worse than your plan’s average. So luck was not on your side this round.", negNote:"A negative result is normal. In this project risks can only be reduced, not eliminated. The game measures how much you reduced the loss.", nothingWon:"Note: this round “doing nothing” did better than your plan. That can happen in a single round; it is luck. Play your plan 1,000 times to see the quality of the decision.",
   takeaway:"Remember: a good decision does not always bring a good outcome. But it wins on average. Risk management manages the average, not luck.",
   evLine:"Expected impact"}
 };
@@ -238,7 +241,7 @@ const qs = new URLSearchParams(location.search);
 let lang = "tr"; // Bu okul yalnızca Türkçe. İngilizce sürüm ayrı okulda kurgulanacak.
 /* Kişiselleştirme: ?name= parametresinden yalnızca ilk ad alınır. Hiçbir yere kaydedilmez veya gönderilmez. */
 const firstName = (()=>{ const raw=(new URLSearchParams(location.search).get("name")||"").trim();
-  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); return f.slice(0,30); })();
+  if(!raw || /\{\{|\}\}/.test(raw)) return ""; const f=raw.split(/\s+/)[0].replace(/[^\p{L}\p{M}'’-]/gu,""); if(!/^\p{Lu}/u.test(f) || /[-_]/.test(f)) return ""; return f.slice(0,30); })();
 
 let sel = CARDS.map(()=>0);
 let showEv = false;
@@ -335,6 +338,7 @@ function runMC(){ const N=1000; let a={me:0,no:0,best:0}, beat=0;
 function renderResult(){ const t=L(), r=last.me;
   const expMe = last.plan.reduce((a,k,j)=>a+optEV(CARDS[j],CARDS[j].o[k]),0);
   const luck = r.net >= expMe ? t.luckGood : t.luckBad;
+  const nothingWon = last.no.net > r.net;
   if(!notified){ notified=true; try{ if(window.parent!==window) window.parent.postMessage({type:"gbmc-activity-complete",id:"RM-GAME",net:Math.round(r.net)},"*"); }catch(e){} }
   const rowsCmp=[[t.yours,last.me,true],[t.nothing,last.no,false],[t.best,last.best,false]];
   const mx = mc ? Math.max(Math.abs(mc.me),Math.abs(mc.no),Math.abs(mc.best),1) : 1;
@@ -344,7 +348,11 @@ function renderResult(){ const t=L(), r=last.me;
      <div class="kpi"><div class="l">${t.losses}</div><div class="v">${money(-r.loss)}</div></div>
      <div class="kpi"><div class="l">${t.gains}</div><div class="v">${signed(r.gain)}</div></div>
      <div class="kpi net"><div class="l">${t.net}</div><div class="v">${signed(r.net)}</div></div></div>
-   <p>${firstName?esc(firstName)+", "+luck.charAt(0).toLowerCase()+luck.slice(1):luck}</p>
+   <div class="luckbox"><b>${firstName?esc(firstName)+", "+t.luckTitle.charAt(0).toLowerCase()+t.luckTitle.slice(1):t.luckTitle}</b>
+     <div class="lrow"><span>${t.expLbl}</span><b>${signed(expMe)}</b></div>
+     <div class="lrow"><span>${t.thisLbl}</span><b>${signed(r.net)}</b></div>
+     <p style="margin:8px 0 6px">${luck}</p><p class="sub" style="margin:0">${t.negNote}</p>
+     ${nothingWon?`<p class="warnnote">${t.nothingWon}</p>`:""}</div>
    <h3 class="mt">${t.compare}</h3><p class="sub">${t.compareNote}</p>
    <div class="tw"><table><thead><tr><th>${t.plan}</th><th class="n">${t.spent}</th><th class="n">${t.losses}</th><th class="n">${t.gains}</th><th class="n">${t.net}</th></tr></thead><tbody>
    ${rowsCmp.map(([n,o,me])=>`<tr class="${me?"me":""}"><td>${n}</td><td class="n">${money(-o.sp)}</td><td class="n">${money(-o.loss)}</td><td class="n">${signed(o.gain)}</td><td class="n">${signed(o.net)}</td></tr>`).join("")}
